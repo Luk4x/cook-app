@@ -8,11 +8,13 @@ import { router } from 'expo-router';
 import { services } from '@/services';
 
 import { IngredientStateProps } from './types';
+import { Loading } from '@/components/Loading';
 
 export default function Index() {
   const [ingredients, setIngredients] = useState<IngredientStateProps>({
     all: [],
-    selectedIds: []
+    selectedIds: [],
+    loading: true
   });
 
   useEffect(() => {
@@ -20,6 +22,9 @@ export default function Index() {
       .findAll()
       .then(allIngredients =>
         setIngredients(prevState => ({ ...prevState, all: allIngredients }))
+      )
+      .finally(() =>
+        setIngredients(prevState => ({ ...prevState, loading: false }))
       );
   }, []);
 
@@ -28,24 +33,26 @@ export default function Index() {
       { text: 'Não', style: 'cancel' },
       {
         text: 'Sim',
-        onPress: () => {
-          setIngredients(prevState => ({ ...prevState, selectedIds: [] }));
-        }
+        onPress: () =>
+          setIngredients(prevState => ({ ...prevState, selectedIds: [] }))
       }
     ]);
   };
 
-  const handleIngredientSelection = (selectedIngredientsIds: string[]) => {
+  const handleIngredientSelection = (selectedIngredientsIds: string[]) =>
     setIngredients(prevState => ({
       ...prevState,
       selectedIds: selectedIngredientsIds
     }));
-  };
 
   const modalButton = {
     title: 'Encontrar',
     onPress: () => router.navigate(`/recipes/${ingredients.selectedIds}`)
   };
+
+  if (ingredients.loading) {
+    return <Loading />;
+  }
 
   return (
     <View style={styles.container}>
@@ -60,7 +67,7 @@ export default function Index() {
         ingredientsList={ingredients.all}
         selectedIngredients={ingredients.selectedIds}
         onSelectIngredient={handleIngredientSelection}
-        style={{ paddingBottom: 200 }}
+        style={{ paddingBottom: ingredients.selectedIds.length > 0 ? 200 : 0 }}
       />
       {ingredients.selectedIds.length > 0 && (
         <Modal
