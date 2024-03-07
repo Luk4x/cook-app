@@ -1,36 +1,46 @@
 import { ScrollView } from 'react-native';
 import { styles } from './styles';
 import { Ingredient } from '../Component';
-import { IngredientsProps } from './type';
+import { IngredientsProps } from './types';
+import { services } from '@/services';
 
 function Ingredients({
+  ingredientsList,
   selectedIngredients,
-  setSelectedIngredients
+  onSelectIngredient,
+  ...rest
 }: IngredientsProps) {
   const handleSelection = (value: string) => {
-    setSelectedIngredients(prevState => {
-      if (prevState.includes(value)) {
-        return prevState.filter(ingredient => ingredient !== value);
+    if (selectedIngredients && onSelectIngredient) {
+      if (selectedIngredients.includes(value)) {
+        console.log(
+          selectedIngredients.filter(ingredient => ingredient !== value)
+        );
+        onSelectIngredient(
+          selectedIngredients.filter(ingredient => ingredient !== value)
+        );
       }
 
-      return [...prevState, value];
-    });
+      onSelectIngredient([...selectedIngredients, value]);
+    }
   };
 
   return (
     <ScrollView
-      contentContainerStyle={styles.container}
+      {...rest}
+      contentContainerStyle={[styles.container, rest?.style]}
       showsVerticalScrollIndicator={false}
     >
-      {Array.from({ length: 100 }, (_, i) => i).map(i => (
-        <Ingredient
-          key={i}
-          name="Maça"
-          image={require('@/assets/apple.png')}
-          selected={selectedIngredients.includes(i.toString())}
-          onPress={() => handleSelection(i.toString())}
-        />
-      ))}
+      {ingredientsList.length > 0 &&
+        ingredientsList.map(({ id, image, name }) => (
+          <Ingredient
+            key={id}
+            name={name}
+            image={`${services.storage.imagePath}/${image}`}
+            selected={selectedIngredients?.includes(id)}
+            onPress={() => handleSelection(id)}
+          />
+        ))}
     </ScrollView>
   );
 }
