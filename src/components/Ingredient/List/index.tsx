@@ -13,12 +13,11 @@ function Ingredients({
   const handleSelection = (value: string) => {
     if (selectedIngredients && onSelectIngredient) {
       if (selectedIngredients.includes(value)) {
-        console.log(
-          selectedIngredients.filter(ingredient => ingredient !== value)
-        );
         onSelectIngredient(
           selectedIngredients.filter(ingredient => ingredient !== value)
         );
+
+        return;
       }
 
       onSelectIngredient([...selectedIngredients, value]);
