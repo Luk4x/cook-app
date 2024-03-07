@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 import { services } from '@/services';
 import { SearchResultStateProps } from './types';
 import { Ingredients } from '@/components/Ingredient';
+import { Loading } from '@/components/Loading';
 
 export default function Recipes() {
   const params = useLocalSearchParams<{ ingredientsIds: string }>();
@@ -14,17 +15,26 @@ export default function Recipes() {
 
   const [searchResult, setSearchResult] = useState<SearchResultStateProps>({
     ingredients: [],
-    recipes: []
+    recipes: [],
+    loading: true
   });
 
   useEffect(() => {
     Promise.all([
       services.ingredients.findByIds(ingredientsIds),
       services.recipes.findByIngredientsIds(ingredientsIds)
-    ]).then(([ingredients, recipes]) =>
-      setSearchResult({ ingredients, recipes })
-    );
+    ])
+      .then(([ingredients, recipes]) =>
+        setSearchResult(prevState => ({ ...prevState, ingredients, recipes }))
+      )
+      .finally(() =>
+        setSearchResult(prevState => ({ ...prevState, loading: false }))
+      );
   }, []);
+
+  if (searchResult.loading) {
+    return <Loading />;
+  }
 
   return (
     <View style={styles.container}>
@@ -51,6 +61,11 @@ export default function Recipes() {
         contentContainerStyle={styles.recipesContent}
         columnWrapperStyle={{ gap: 16 }}
         numColumns={2}
+        ListEmptyComponent={() => (
+          <Text style={styles.empty}>
+            Nenhuma receita encontrada. Escolha outros ingredientes.
+          </Text>
+        )}
       />
     </View>
   );
