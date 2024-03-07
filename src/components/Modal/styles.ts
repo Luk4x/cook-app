@@ -8,7 +8,8 @@ export const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     position: 'absolute',
     bottom: 24,
-    width: Dimensions.get('window').width - 48
+    width: Dimensions.get('screen').width - 48,
+    marginLeft: 24
   },
   header: {
     flexDirection: 'row',
